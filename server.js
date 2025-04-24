@@ -59,7 +59,7 @@ app.get('/', (req, res) => {
 app.get('/todos', (req, res) => {
   db.all('SELECT * FROM Todos', [], (err, rows) => {
     if (err) {
-      return console.error("Error fetching data:", err.message);
+      res.status(500).json({ message: 'Database error' });
     }
     res.json(rows);
   });
@@ -71,9 +71,14 @@ app.get('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
   db.all('SELECT * FROM Todos WHERE id = ?', id, (err, rows) => {
     if (err) {
-      return console.error("Error fetching data:", err.message);
+      res.status(500).json({ message: 'Database error' });
     }
-    console.log(`Todo with id#${id}`, rows);
+    else if (row) {
+      res.json(row);
+    }
+    else {
+      res.status(404).json({ message: 'Todo item not found' });
+    }
   });
 });
 
@@ -91,10 +96,10 @@ app.post('/todos', (req, res) => {
   `
   db.run(insertQuery, [name, priority, isFun], function(err) {
     if (err) {
-      return console.error("Error inserting todo:", err.message);
+      if (err) console.error('Failed to write to log:', err);
     }
-    console.log(`A row has been inserted with rowid ${this.lastID}`);
-  });
+    res.status(201).json(newTodo);
+    });
 });
 
 // DELETE a todo item by ID
@@ -102,9 +107,9 @@ app.delete('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
   db.run('DELETE FROM Todos WHERE id = ?', [id], function(err) {
     if (err) {
-      return console.error("Error deleting data:", err.message);
+      res.status(500).json({ message: 'Failed to delete todo' });
     }
-    console.log(`Rows deleted: ${this.changes}`); 
+    res.json({ message: `Todo item ${id} deleted.` });
   });
 });
 
