@@ -73,8 +73,8 @@ app.get('/todos/:id', (req, res) => {
     if (err) {
       res.status(500).json({ message: 'Database error' });
     }
-    else if (row) {
-      res.json(row);
+    else if (rows) {
+      res.json(rows);
     }
     else {
       res.status(404).json({ message: 'Todo item not found' });
@@ -98,7 +98,7 @@ app.post('/todos', (req, res) => {
     if (err) {
       if (err) console.error('Failed to write to log:', err);
     }
-    res.status(201).json(newTodo);
+    res.status(201).json([name, priority, isFun]);
     });
 });
 
